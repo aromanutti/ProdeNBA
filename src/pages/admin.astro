@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav';
+import AdminPanel from '../components/AdminPanel';
+---
+<Layout title="Panel de Administración">
+  <Nav currentPath="/admin" client:load />
+  <div class="page-container">
+    <AdminPanel client:load />
+  </div>
+</Layout>

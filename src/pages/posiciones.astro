@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav';
+import LeaderboardPage from '../components/LeaderboardPage';
+---
+<Layout title="Tabla de Posiciones">
+  <Nav currentPath="/posiciones" client:load />
+  <div class="page-container">
+    <LeaderboardPage client:load />
+  </div>
+</Layout>

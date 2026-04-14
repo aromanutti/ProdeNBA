@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav';
+import ScoringRules from '../components/ScoringRules';
+---
+<Layout title="Reglas del Prode">
+  <Nav currentPath="/reglas" client:load />
+  <div class="page-container">
+    <ScoringRules client:load />
+  </div>
+</Layout>

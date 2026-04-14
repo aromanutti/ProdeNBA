@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav';
+import PredictionsPage from '../components/PredictionsPage';
+---
+<Layout title="Mis Predicciones">
+  <Nav currentPath="/predicciones" client:load />
+  <div class="page-container">
+    <PredictionsPage client:load />
+  </div>
+</Layout>

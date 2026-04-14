@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav';
+import AuthForm from '../components/AuthForm';
+---
+<Layout title="Iniciar Sesión">
+  <Nav currentPath="/login" client:load />
+  <div class="page-container">
+    <AuthForm client:load />
+  </div>
+</Layout>
