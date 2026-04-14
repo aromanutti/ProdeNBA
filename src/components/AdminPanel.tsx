@@ -31,13 +31,16 @@ export default function AdminPanel() {
   };
 
   const changeStatus = async (seriesId: string, newStatus: string) => {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('series')
       .update({ status: newStatus })
-      .eq('id', seriesId);
+      .eq('id', seriesId)
+      .select();
     
     if (error) {
       setMessage('Error: ' + error.message);
+    } else if (!data || data.length === 0) {
+      setMessage('Error de permisos. La base de datos (RLS) bloqueó la actualización.');
     } else {
       setMessage('Status actualizado');
       loadData();
@@ -45,13 +48,16 @@ export default function AdminPanel() {
   };
 
   const setResult = async (seriesId: string, winner: string, games: number) => {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('series')
       .update({ actual_winner: winner, actual_games: games, status: 'finished' })
-      .eq('id', seriesId);
+      .eq('id', seriesId)
+      .select();
     
     if (error) {
       setMessage('Error: ' + error.message);
+    } else if (!data || data.length === 0) {
+      setMessage('Error de permisos. La base de datos (RLS) bloqueó la actualización.');
     } else {
       setMessage('Resultado guardado');
       loadData();

@@ -52,7 +52,7 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
     try {
       const predictionData: any = {
         predicted_winner: winner,
-        predicted_games: isPlayIn ? 1 : games,
+        predicted_games: isPlayIn ? null : games,
       };
 
       if (existingPrediction) {
