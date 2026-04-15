@@ -1042,3 +1042,146 @@ select.form-input {
   background: rgba(255, 145, 89, 0.12);
   color: var(--primary);
 }
+ 
+ 
+/* --- BRACKET STYLES --- */
+.bracket-scroll-wrapper {
+  overflow-x: auto;
+  padding: 20px;
+  max-width: 100%;
+}
+.bracket-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  min-width: 1200px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.bracket-half {
+  display: flex;
+  flex: 1;
+  gap: 15px;
+}
+.bracket-half.west-half {
+  justify-content: flex-end;
+}
+.bracket-half.east-half {
+  justify-content: flex-start;
+}
+.bracket-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 200px;
+}
+.bracket-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  min-width: 140px;
+}
+.bracket-column.left {
+  align-items: flex-end;
+}
+.bracket-column.right {
+  align-items: flex-start;
+}
+.column-title {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--tertiary);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.matches-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-around;
+  gap: 15px;
+}
+.match-wrapper {
+  position: relative;
+}
+.bracket-match {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 140px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  position: relative;
+}
+.bracket-match.placeholder {
+  opacity: 0.5;
+  text-align: center;
+  padding: 15px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.bracket-match.admin-clickable {
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.bracket-match.admin-clickable:hover {
+  border-color: var(--tertiary);
+  box-shadow: 0 0 10px rgba(148, 254, 182, 0.2);
+}
+.bracket-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+}
+.bracket-team.winner {
+  background: rgba(148, 254, 182, 0.1);
+}
+.bracket-team.loser {
+  opacity: 0.4;
+}
+.seed {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  width: 12px;
+  text-align: right;
+}
+.team-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.team-logo-placeholder {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.team-abbr {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.match-divider {
+  height: 1px;
+  background: var(--border);
+  width: 100%;
+}
+.match-status-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--tertiary);
+  color: var(--bg);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+

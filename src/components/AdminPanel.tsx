@@ -1,7 +1,43 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
+import Bracket from './Bracket';
+
 const ADMIN_EMAIL = import.meta.env.PUBLIC_ADMIN_EMAIL;
+
+const NBA_TEAMS = [
+  { abbr: 'TBD', name: 'A Definir', espnUrl: '' },
+  { abbr: 'ATL', name: 'Atlanta Hawks', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/atl.png' },
+  { abbr: 'BOS', name: 'Boston Celtics', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/bos.png' },
+  { abbr: 'BKN', name: 'Brooklyn Nets', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/bkn.png' },
+  { abbr: 'CHA', name: 'Charlotte Hornets', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/cha.png' },
+  { abbr: 'CHI', name: 'Chicago Bulls', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/chi.png' },
+  { abbr: 'CLE', name: 'Cleveland Cavaliers', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/cle.png' },
+  { abbr: 'DAL', name: 'Dallas Mavericks', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/dal.png' },
+  { abbr: 'DEN', name: 'Denver Nuggets', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/den.png' },
+  { abbr: 'DET', name: 'Detroit Pistons', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/det.png' },
+  { abbr: 'GSW', name: 'Golden State Warriors', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/gs.png' },
+  { abbr: 'HOU', name: 'Houston Rockets', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/hou.png' },
+  { abbr: 'IND', name: 'Indiana Pacers', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/ind.png' },
+  { abbr: 'LAC', name: 'LA Clippers', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/lac.png' },
+  { abbr: 'LAL', name: 'Los Angeles Lakers', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/lal.png' },
+  { abbr: 'MEM', name: 'Memphis Grizzlies', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mem.png' },
+  { abbr: 'MIA', name: 'Miami Heat', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mia.png' },
+  { abbr: 'MIL', name: 'Milwaukee Bucks', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/mil.png' },
+  { abbr: 'MIN', name: 'Minnesota Timberwolves', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/min.png' },
+  { abbr: 'NOP', name: 'New Orleans Pelicans', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/no.png' },
+  { abbr: 'NYK', name: 'New York Knicks', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/ny.png' },
+  { abbr: 'OKC', name: 'Oklahoma City Thunder', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/okc.png' },
+  { abbr: 'ORL', name: 'Orlando Magic', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/orl.png' },
+  { abbr: 'PHI', name: 'Philadelphia 76ers', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/phi.png' },
+  { abbr: 'PHX', name: 'Phoenix Suns', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/phx.png' },
+  { abbr: 'POR', name: 'Portland Trail Blazers', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/por.png' },
+  { abbr: 'SAC', name: 'Sacramento Kings', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/sac.png' },
+  { abbr: 'SAS', name: 'San Antonio Spurs', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/sa.png' },
+  { abbr: 'TOR', name: 'Toronto Raptors', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/tor.png' },
+  { abbr: 'UTA', name: 'Utah Jazz', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/utah.png' },
+  { abbr: 'WAS', name: 'Washington Wizards', espnUrl: 'https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/was.png' }
+];
 
 export default function AdminPanel() {
   const [user, setUser] = useState<any>(null);
@@ -30,6 +66,20 @@ export default function AdminPanel() {
     setLoading(false);
   };
 
+  const updateTeam = async (seriesId: string, type: 'home' | 'away', abbr: string) => {
+    const team = NBA_TEAMS.find(t => t.abbr === abbr) || NBA_TEAMS[0];
+    const updatePayload = type === 'home' 
+      ? { team_home: team.abbr, team_home_full: team.name, team_home_logo: team.espnUrl }
+      : { team_away: team.abbr, team_away_full: team.name, team_away_logo: team.espnUrl };
+
+    const { error } = await supabase.from('series').update(updatePayload).eq('id', seriesId);
+    if (error) setMessage('Error al actualizar equipo: ' + error.message);
+    else {
+      setMessage('Equipo actualizado exitosamente');
+      loadData();
+    }
+  };
+
   const changeStatus = async (seriesId: string, newStatus: string) => {
     if (newStatus === 'finished') {
       alert('Para marcar la serie como finalizada con un ganador, por favor haz click en el trofeo (🏆) del equipo ganador en la lista de abajo.');
@@ -52,21 +102,103 @@ export default function AdminPanel() {
     }
   };
 
-  const setResult = async (seriesId: string, winner: string, games: number) => {
+  const changeStartTime = async (seriesId: string, newStartTime: string) => {
     const { data, error } = await supabase
       .from('series')
-      .update({ actual_winner: winner, actual_games: games, status: 'finished' })
+      .update({ start_time: newStartTime || null })
+      .eq('id', seriesId)
+      .select();
+    
+    if (error) {
+      setMessage('Error guardando fecha: ' + error.message);
+    } else if (!data || data.length === 0) {
+      setMessage('Error de permisos. La base de datos (RLS) bloqueó la actualización.');
+    } else {
+      setMessage('Hora de inicio actualizada');
+      loadData();
+    }
+  };
+
+  const routeTeam = async (targetSortOrder: number, teamSlot: 'home' | 'away', teamAbbr: string) => {
+    const target = series.find(s => s.sort_order === targetSortOrder);
+    if (!target) return;
+    const teamFull = NBA_TEAMS.find(t => t.abbr === teamAbbr) || NBA_TEAMS[0];
+    const update = teamSlot === 'home' 
+      ? { team_home: teamAbbr, team_home_full: teamFull.name, team_home_logo: teamFull.espnUrl }
+      : { team_away: teamAbbr, team_away_full: teamFull.name, team_away_logo: teamFull.espnUrl };
+    await supabase.from('series').update(update).eq('id', target.id);
+  };
+
+  const advanceBracket = async (s: any, winner: string) => {
+    if (!s) return;
+    const loser = winner === s.team_home ? s.team_away : s.team_home;
+    
+    // Play-In East
+    if (s.sort_order === 1) { 
+       await routeTeam(8, 'away', winner); 
+       await routeTeam(5, 'home', loser);  
+    }
+    else if (s.sort_order === 3) await routeTeam(5, 'away', winner);
+    else if (s.sort_order === 5) await routeTeam(7, 'away', winner); 
+
+    // Play-In West
+    else if (s.sort_order === 2) { 
+       await routeTeam(12, 'away', winner); 
+       await routeTeam(6, 'home', loser); 
+    }
+    else if (s.sort_order === 4) await routeTeam(6, 'away', winner);
+    else if (s.sort_order === 6) await routeTeam(11, 'away', winner);
+
+    // East Round 1 -> Semis
+    else if (s.sort_order === 7) await routeTeam(15, 'home', winner);
+    else if (s.sort_order === 10) await routeTeam(15, 'away', winner);
+    else if (s.sort_order === 8) await routeTeam(16, 'home', winner);
+    else if (s.sort_order === 9) await routeTeam(16, 'away', winner);
+
+    // West Round 1 -> Semis
+    else if (s.sort_order === 11) await routeTeam(17, 'home', winner);
+    else if (s.sort_order === 14) await routeTeam(17, 'away', winner);
+    else if (s.sort_order === 12) await routeTeam(18, 'home', winner);
+    else if (s.sort_order === 13) await routeTeam(18, 'away', winner);
+
+    // Semis -> Conf Finals
+    else if (s.sort_order === 15) await routeTeam(19, 'home', winner);
+    else if (s.sort_order === 16) await routeTeam(19, 'away', winner);
+    else if (s.sort_order === 17) await routeTeam(20, 'home', winner);
+    else if (s.sort_order === 18) await routeTeam(20, 'away', winner);
+
+    // Conf Finals -> NBA Finals
+    else if (s.sort_order === 19) await routeTeam(21, 'home', winner);
+    else if (s.sort_order === 20) await routeTeam(21, 'away', winner);
+  };
+
+  const setResult = async (seriesId: string, winner: string, games: number) => {
+    const currentSeries = series.find(s => s.id === seriesId);
+    let finalMvp = null;
+    if (currentSeries && (currentSeries.round === 'conf_finals' || currentSeries.round === 'finals')) {
+      finalMvp = prompt(`¿Quién fue el MVP de esta final? (Dejar en blanco si no se conoce)`);
+    }
+
+    const payload: any = { actual_winner: winner, actual_games: games, status: 'finished' };
+    if (finalMvp) payload.actual_mvp = finalMvp;
+
+    const { data, error } = await supabase
+      .from('series')
+      .update(payload)
       .eq('id', seriesId)
       .select();
     
     if (error) {
       setMessage('Error: ' + error.message);
+      return;
     } else if (!data || data.length === 0) {
       setMessage('Error de permisos. La base de datos (RLS) bloqueó la actualización.');
-    } else {
-      setMessage('Resultado guardado');
-      loadData();
+      return;
     }
+
+    await advanceBracket(currentSeries, winner);
+    setMessage('Resultado guardado y el bracket avanzó correctamente');
+    loadData();
   };
 
   const syncFromESPN = async () => {
@@ -133,17 +265,43 @@ export default function AdminPanel() {
         )}
       </div>
 
+      <div className="section" style={{ overflow: 'hidden' }}>
+        <h2 className="section-title">
+          <span className="section-title__icon">📈</span>
+          Bracket Interactivo
+        </h2>
+        <Bracket series={series} isAdmin={true} onSeriesClick={(s) => {
+          // Future scroll to series or something. Currently just viewable.
+        }}/>
+      </div>
+
       <div className="section">
         <h2 className="section-title">
           <span className="section-title__icon">⚙️</span>
-          Series
+          Series Manuales
         </h2>
 
         {series.map(s => (
           <div key={s.id} className="admin-grid" style={{ marginBottom: '12px' }}>
             <div>
-              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-                {s.team_home} vs {s.team_away}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontFamily: "'Space Grotesk', sans-serif" }}>
+                <select 
+                  className="form-input" 
+                  style={{ width: '85px', padding: '4px', fontSize: '0.8rem', fontWeight: 700 }}
+                  value={s.team_home}
+                  onChange={(e) => updateTeam(s.id, 'home', e.target.value)}
+                >
+                  {NBA_TEAMS.map(t => <option key={t.abbr} value={t.abbr}>{t.abbr}</option>)}
+                </select>
+                <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>vs</span>
+                <select 
+                  className="form-input" 
+                  style={{ width: '85px', padding: '4px', fontSize: '0.8rem', fontWeight: 700 }}
+                  value={s.team_away}
+                  onChange={(e) => updateTeam(s.id, 'away', e.target.value)}
+                >
+                  {NBA_TEAMS.map(t => <option key={t.abbr} value={t.abbr}>{t.abbr}</option>)}
+                </select>
               </div>
               <div className="label-sm text-muted" style={{ marginTop: '4px' }}>
                 {s.conference?.toUpperCase()} • {s.round}
@@ -155,16 +313,87 @@ export default function AdminPanel() {
               )}
             </div>
 
-            <select
-              className="form-input"
-              style={{ width: '130px' }}
-              value={s.status}
-              onChange={(e) => changeStatus(s.id, e.target.value)}
-            >
-              {statusOptions.map(opt => (
-                <option key={opt} value={opt}>{opt.toUpperCase()}</option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <select
+                className="form-input"
+                style={{ width: '130px' }}
+                value={s.status}
+                onChange={(e) => changeStatus(s.id, e.target.value)}
+              >
+                {statusOptions.map(opt => (
+                  <option key={opt} value={opt}>{opt.toUpperCase()}</option>
+                ))}
+              </select>
+
+              <div>
+                <label className="label-sm text-muted" style={{ display: 'block', fontSize: '0.65rem', marginBottom: '4px' }}>
+                  Cierre de Predicciones
+                </label>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  {(() => {
+                    const dt = s.start_time ? new Date(s.start_time) : null;
+                    const cMm = dt ? (dt.getMonth() + 1).toString().padStart(2, '0') : '';
+                    const cDd = dt ? dt.getDate().toString() : '';
+                    const cTime = dt ? `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` : '';
+
+                    const handleUpdate = (type: 'mm' | 'dd' | 'time', val: string) => {
+                      if (!val && type === 'dd') {
+                         changeStartTime(s.id, '');
+                         return;
+                      }
+                      const mm = type === 'mm' ? val : (cMm || '04');
+                      const dd = type === 'dd' ? val : (cDd || '15');
+                      const time = type === 'time' ? val : (cTime || '21:00');
+                      const [hs, ms] = time.split(':');
+                      const finalDate = new Date(2026, parseInt(mm) - 1, parseInt(dd), parseInt(hs), parseInt(ms));
+                      changeStartTime(s.id, finalDate.toISOString());
+                    };
+
+                    return (
+                      <>
+                        <input
+                          type="number"
+                          className="form-input"
+                          style={{ width: '45px', padding: '4px', fontSize: '0.75rem', textAlign: 'center' }}
+                          placeholder="Día"
+                          min="1" max="31"
+                          value={cDd}
+                          onChange={(e) => handleUpdate('dd', e.target.value)}
+                        />
+                        <select
+                          className="form-input"
+                          style={{ width: '65px', padding: '4px', fontSize: '0.75rem' }}
+                          value={cMm}
+                          onChange={(e) => handleUpdate('mm', e.target.value)}
+                        >
+                          <option value="">Mes</option>
+                          <option value="04">Abr</option>
+                          <option value="05">May</option>
+                          <option value="06">Jun</option>
+                        </select>
+                        <input
+                          type="time"
+                          className="form-input"
+                          style={{ width: '75px', padding: '4px', fontSize: '0.75rem' }}
+                          value={cTime}
+                          onChange={(e) => handleUpdate('time', e.target.value)}
+                        />
+                        {s.start_time && (
+                          <button 
+                            className="btn btn--sm" 
+                            style={{ padding: '4px', opacity: 0.7, background: 'transparent' }}
+                            onClick={() => changeStartTime(s.id, '')}
+                            title="Limpiar"
+                          >
+                            ❌
+                          </button>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
 
             <div style={{ display: 'flex', gap: '4px' }}>
               <button

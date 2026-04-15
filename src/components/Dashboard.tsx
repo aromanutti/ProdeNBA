@@ -4,6 +4,8 @@ import { calculateLeaderboard } from '../lib/scoring';
 import SeriesCard from './SeriesCard';
 import LeaderboardTable from './LeaderboardTable';
 
+import Bracket from './Bracket';
+
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [series, setSeries] = useState<any[]>([]);
@@ -67,6 +69,14 @@ export default function Dashboard() {
             Empezar a Jugar
           </a>
         )}
+      </div>
+
+      <div className="section" style={{ overflow: 'hidden' }}>
+        <h2 className="section-title">
+          <span className="section-title__icon">🌲</span>
+          Bracket Oficial
+        </h2>
+        <Bracket series={series} />
       </div>
 
       {/* Quick leaderboard */}

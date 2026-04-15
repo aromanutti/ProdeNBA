@@ -11,6 +11,7 @@ interface Series {
   team_home_logo: string;
   team_away_logo: string;
   status: string;
+  start_time?: string | null;
 }
 
 interface PredictionFormProps {
@@ -19,6 +20,7 @@ interface PredictionFormProps {
     id: string;
     predicted_winner: string;
     predicted_games: number | null;
+    predicted_mvp?: string | null;
   } | null;
   userId: string;
   onSaved: () => void;
@@ -26,13 +28,17 @@ interface PredictionFormProps {
 
 export default function PredictionForm({ series, existingPrediction, userId, onSaved }: PredictionFormProps) {
   const isPlayIn = series.round === 'play_in';
+  const requiresMvp = series.round === 'conf_finals' || series.round === 'finals';
+  
   const [winner, setWinner] = useState(existingPrediction?.predicted_winner || '');
   const [games, setGames] = useState(existingPrediction?.predicted_games || 0);
+  const [mvp, setMvp] = useState(existingPrediction?.predicted_mvp || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const isLocked = series.status !== 'open';
+  const isPastStartTime = series.start_time && new Date() >= new Date(series.start_time);
+  const isLocked = series.status !== 'open' || isPastStartTime;
   const isPending = series.status === 'pending';
 
   const handleSave = async () => {
@@ -44,6 +50,10 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
       setError('Elegí la cantidad de juegos');
       return;
     }
+    if (requiresMvp && !mvp) {
+      setError('Ingresá el nombre del MVP esperado');
+      return;
+    }
 
     setSaving(true);
     setError('');
@@ -53,6 +63,7 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
       const predictionData: any = {
         predicted_winner: winner,
         predicted_games: isPlayIn ? null : games,
+        predicted_mvp: requiresMvp ? mvp : null,
       };
 
       if (existingPrediction) {
@@ -100,13 +111,24 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
           <span style={{ fontSize: '1.5rem' }}>🔒</span>
           <p className="body-md text-muted" style={{ marginTop: '8px' }}>
             Las predicciones están cerradas para esta serie
+            {series.start_time && isPastStartTime && (
+              <>
+                <br />
+                <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                  (Cerró el {new Date(series.start_time).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} a las {new Date(series.start_time).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})
+                </span>
+              </>
+            )}
           </p>
           {existingPrediction && (
-            <div className="my-prediction-tag" style={{ marginTop: '12px', display: 'inline-flex' }}>
-              Tu predicción: {existingPrediction.predicted_winner}
+            <div className="my-prediction-tag" style={{ marginTop: '12px', display: 'inline-flex', flexDirection: 'column', gap: '4px', textAlign: 'center' }}>
+              <div>Tu predicción: {existingPrediction.predicted_winner} 
               {existingPrediction.predicted_games && existingPrediction.predicted_games > 1
                 ? ` en ${existingPrediction.predicted_games}`
-                : ''}
+                : ''}</div>
+              {existingPrediction.predicted_mvp && (
+                 <div style={{ color: 'var(--tertiary)' }}>MVP: {existingPrediction.predicted_mvp}</div>
+              )}
             </div>
           )}
         </div>
@@ -116,6 +138,20 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
 
   return (
     <div className="prediction-selector">
+      {series.start_time && (
+        <div style={{ 
+          textAlign: 'center', 
+          fontSize: '0.8rem', 
+          color: 'var(--tertiary)', 
+          marginBottom: '16px',
+          background: 'rgba(148, 254, 182, 0.05)',
+          padding: '6px',
+          borderRadius: '6px',
+          border: '1px solid rgba(148, 254, 182, 0.1)'
+        }}>
+          ⏳ Tenés tiempo hasta el {new Date(series.start_time).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} a las {new Date(series.start_time).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+        </div>
+      )}
       <p className="label-md text-muted" style={{ marginBottom: '16px', textAlign: 'center' }}>
         Elegí al ganador
       </p>
@@ -169,6 +205,23 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
         <p className="label-sm text-muted" style={{ textAlign: 'center', marginTop: '8px' }}>
           ⚡ Partido único — 1 punto por acertar ganador
         </p>
+      )}
+
+      {/* MVP selector */}
+      {requiresMvp && (
+        <div style={{ marginTop: '16px' }}>
+          <p className="label-md text-muted" style={{ marginBottom: '8px', textAlign: 'center' }}>
+            ¿Quién será el MVP?
+          </p>
+          <input
+            type="text"
+            className="form-input"
+            style={{ width: '100%', textAlign: 'center' }}
+            placeholder="Ej. LeBron James"
+            value={mvp}
+            onChange={(e) => setMvp(e.target.value)}
+          />
+        </div>
       )}
 
       {error && <div className="auth-error" style={{ marginTop: '16px' }}>{error}</div>}
