@@ -31,6 +31,11 @@ export default function AdminPanel() {
   };
 
   const changeStatus = async (seriesId: string, newStatus: string) => {
+    if (newStatus === 'finished') {
+      alert('Para marcar la serie como finalizada con un ganador, por favor haz click en el trofeo (🏆) del equipo ganador en la lista de abajo.');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('series')
       .update({ status: newStatus })
@@ -166,8 +171,15 @@ export default function AdminPanel() {
                 className="btn btn--ghost btn--sm"
                 title={`${s.team_home} gana`}
                 onClick={() => {
-                  const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_home}? (4-7)`);
-                  if (gamesStr) setResult(s.id, s.team_home, parseInt(gamesStr));
+                  const isPlayIn = s.round === 'play_in';
+                  if (isPlayIn) {
+                    if (confirm(`¿Confirmar que ${s.team_home} ganó el partido?`)) {
+                      setResult(s.id, s.team_home, 1);
+                    }
+                  } else {
+                    const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_home}? (4-7)`);
+                    if (gamesStr) setResult(s.id, s.team_home, parseInt(gamesStr));
+                  }
                 }}
               >
                 🏆 {s.team_home}
@@ -176,8 +188,15 @@ export default function AdminPanel() {
                 className="btn btn--ghost btn--sm"
                 title={`${s.team_away} gana`}
                 onClick={() => {
-                  const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_away}? (4-7)`);
-                  if (gamesStr) setResult(s.id, s.team_away, parseInt(gamesStr));
+                  const isPlayIn = s.round === 'play_in';
+                  if (isPlayIn) {
+                    if (confirm(`¿Confirmar que ${s.team_away} ganó el partido?`)) {
+                      setResult(s.id, s.team_away, 1);
+                    }
+                  } else {
+                    const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_away}? (4-7)`);
+                    if (gamesStr) setResult(s.id, s.team_away, parseInt(gamesStr));
+                  }
                 }}
               >
                 🏆 {s.team_away}
