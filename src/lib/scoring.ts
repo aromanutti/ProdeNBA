@@ -30,15 +30,31 @@ export interface UserScore {
  * - 1 point for correct series winner (any round)
  * - +2 extra points for exact number of games
  */
+// Normalize team abbreviations to handle discrepancies (e.g. ESPN 'GS' vs Standard 'GSW')
+const normalizeTeam = (abbr: string | null) => {
+  if (!abbr) return '';
+  const map: Record<string, string> = {
+    'GS': 'GSW',
+    'SA': 'SAS',
+    'NY': 'NYK',
+    'NO': 'NOP',
+    'UTAH': 'UTA',
+    'PHO': 'PHX'
+  };
+  return map[abbr.toUpperCase()] || abbr.toUpperCase();
+};
+
 export function calculatePoints(prediction: Prediction, series: Series): number {
   if (series.status !== 'finished' || !series.actual_winner || !series.actual_games) {
     return 0;
   }
 
   let points = 0;
+  const predWinner = normalizeTeam(prediction.predicted_winner);
+  const actWinner = normalizeTeam(series.actual_winner);
 
   // 1 point for correct winner
-  if (prediction.predicted_winner === series.actual_winner) {
+  if (predWinner === actWinner) {
     points += 1;
 
     // +2 extra for exact games
@@ -84,7 +100,7 @@ export function calculateLeaderboard(
       const points = calculatePoints(pred, s);
       score.total_points += points;
 
-      if (pred.predicted_winner === s.actual_winner) {
+      if (normalizeTeam(pred.predicted_winner) === normalizeTeam(s.actual_winner)) {
         score.correct_winners++;
         if (pred.predicted_games === s.actual_games) {
           score.exact_games++;
