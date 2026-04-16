@@ -30,7 +30,15 @@ export default function PredictionsPage() {
       supabase.from('predictions').select('*, profiles(display_name)'),
     ]);
 
-    setSeries(seriesRes.data || []);
+    const now = new Date();
+    const processedSeries = (seriesRes.data || []).map(s => {
+      if (s.status === 'open' && s.start_time && now >= new Date(s.start_time)) {
+        return { ...s, status: 'active' };
+      }
+      return s;
+    });
+
+    setSeries(processedSeries);
     setPredictions(myPredsRes.data || []);
     setAllPredictions(allPredsRes.data || []);
     setLoading(false);

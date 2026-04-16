@@ -27,7 +27,15 @@ export default function Dashboard() {
       supabase.from('profiles').select('*'),
     ]);
 
-    setSeries(seriesRes.data || []);
+    const now = new Date();
+    const processedSeries = (seriesRes.data || []).map(s => {
+      if (s.status === 'open' && s.start_time && now >= new Date(s.start_time)) {
+        return { ...s, status: 'active' };
+      }
+      return s;
+    });
+
+    setSeries(processedSeries);
     setPredictions(predsRes.data || []);
     setProfiles(profilesRes.data || []);
     setLoading(false);

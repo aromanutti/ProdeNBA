@@ -46,6 +46,7 @@ export default function AdminPanel() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState('');
+  const [editDates, setEditDates] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadData();
@@ -62,7 +63,14 @@ export default function AdminPanel() {
     setIsAdmin(true);
 
     const { data } = await supabase.from('series').select('*').order('sort_order');
-    setSeries(data || []);
+    const now = new Date();
+    const processedSeries = (data || []).map(s => {
+      if (s.status === 'open' && s.start_time && now >= new Date(s.start_time)) {
+        return { ...s, status: 'active' };
+      }
+      return s;
+    });
+    setSeries(processedSeries);
     setLoading(false);
   };
 
@@ -331,59 +339,48 @@ export default function AdminPanel() {
                 </label>
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                   {(() => {
-                    const dt = s.start_time ? new Date(s.start_time) : null;
-                    const cMm = dt ? (dt.getMonth() + 1).toString().padStart(2, '0') : '';
-                    const cDd = dt ? dt.getDate().toString() : '';
-                    const cTime = dt ? `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` : '';
-
-                    const handleUpdate = (type: 'mm' | 'dd' | 'time', val: string) => {
-                      if (!val && type === 'dd') {
-                         changeStartTime(s.id, '');
-                         return;
-                      }
-                      const mm = type === 'mm' ? val : (cMm || '04');
-                      const dd = type === 'dd' ? val : (cDd || '15');
-                      const time = type === 'time' ? val : (cTime || '21:00');
-                      const [hs, ms] = time.split(':');
-                      const finalDate = new Date(2026, parseInt(mm) - 1, parseInt(dd), parseInt(hs), parseInt(ms));
-                      changeStartTime(s.id, finalDate.toISOString());
+                    const getLocalDt = (isoUrl: string) => {
+                      if (!isoUrl) return '';
+                      const d = new Date(isoUrl);
+                      if (isNaN(d.getTime())) return '';
+                      const pad = (n: number) => n.toString().padStart(2, '0');
+                      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
                     };
+
+                    const currentVal = editDates[s.id] !== undefined ? editDates[s.id] : getLocalDt(s.start_time);
 
                     return (
                       <>
                         <input
-                          type="number"
+                          type="datetime-local"
                           className="form-input"
-                          style={{ width: '45px', padding: '4px', fontSize: '0.75rem', textAlign: 'center' }}
-                          placeholder="Día"
-                          min="1" max="31"
-                          value={cDd}
-                          onChange={(e) => handleUpdate('dd', e.target.value)}
+                          style={{ padding: '4px', fontSize: '0.75rem', flex: 1, maxWidth: '160px' }}
+                          value={currentVal}
+                          onChange={(e) => setEditDates({ ...editDates, [s.id]: e.target.value })}
                         />
-                        <select
-                          className="form-input"
-                          style={{ width: '65px', padding: '4px', fontSize: '0.75rem' }}
-                          value={cMm}
-                          onChange={(e) => handleUpdate('mm', e.target.value)}
-                        >
-                          <option value="">Mes</option>
-                          <option value="04">Abr</option>
-                          <option value="05">May</option>
-                          <option value="06">Jun</option>
-                        </select>
-                        <input
-                          type="time"
-                          className="form-input"
-                          style={{ width: '75px', padding: '4px', fontSize: '0.75rem' }}
-                          value={cTime}
-                          onChange={(e) => handleUpdate('time', e.target.value)}
-                        />
-                        {s.start_time && (
+                        {editDates[s.id] !== undefined && editDates[s.id] !== getLocalDt(s.start_time) && (
+                          <button 
+                            className="btn btn--primary btn--sm"
+                            style={{ padding: '4px 8px', fontSize: '0.7rem' }}
+                            onClick={() => {
+                              const dt = editDates[s.id];
+                              const finalIso = dt ? new Date(dt).toISOString() : '';
+                              changeStartTime(s.id, finalIso);
+                              
+                              const newEdits = {...editDates};
+                              delete newEdits[s.id];
+                              setEditDates(newEdits);
+                            }}
+                          >
+                            Guardar
+                          </button>
+                        )}
+                        {s.start_time && editDates[s.id] === undefined && (
                           <button 
                             className="btn btn--sm" 
                             style={{ padding: '4px', opacity: 0.7, background: 'transparent' }}
                             onClick={() => changeStartTime(s.id, '')}
-                            title="Limpiar"
+                            title="Limpiar fecha"
                           >
                             ❌
                           </button>
