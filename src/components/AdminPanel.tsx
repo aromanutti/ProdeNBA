@@ -283,13 +283,138 @@ export default function AdminPanel() {
         }}/>
       </div>
 
+      {/* Champion Prediction Admin */}
+      {(() => {
+        const champSeries = series.find(s => s.round === 'champion');
+        if (!champSeries) return null;
+
+        const firstRoundSeries = series.filter(s => s.round === 'first_round');
+        const champTeams = new Set<string>();
+        firstRoundSeries.forEach(s => {
+          if (s.team_home && s.team_home !== 'TBD') champTeams.add(s.team_home);
+          if (s.team_away && s.team_away !== 'TBD') champTeams.add(s.team_away);
+        });
+        const champTeamsList = Array.from(champTeams).sort();
+
+        return (
+          <div className="section">
+            <h2 className="section-title">
+              <span className="section-title__icon">🏆</span>
+              Campeón Anticipado
+            </h2>
+            <div className="admin-grid" style={{ marginBottom: '12px', borderLeft: '3px solid rgba(255, 215, 0, 0.4)' }}>
+              <div>
+                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '1rem' }}>
+                  Predicción de Campeón
+                </div>
+                <div className="label-sm text-muted" style={{ marginTop: '4px' }}>
+                  CHAMPION • 5 puntos
+                </div>
+                {champSeries.actual_winner && (
+                  <div style={{ color: 'var(--tertiary)', fontSize: '0.8rem', marginTop: '4px' }}>
+                    Campeón: {champSeries.actual_winner}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <select
+                  className="form-input"
+                  style={{ width: '130px' }}
+                  value={champSeries.status}
+                  onChange={(e) => changeStatus(champSeries.id, e.target.value)}
+                >
+                  {statusOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt.toUpperCase()}</option>
+                  ))}
+                </select>
+
+                <div>
+                  <label className="label-sm text-muted" style={{ display: 'block', fontSize: '0.65rem', marginBottom: '4px' }}>
+                    Cierre de Predicciones
+                  </label>
+                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    {(() => {
+                      const getLocalDt = (isoUrl: string) => {
+                        if (!isoUrl) return '';
+                        const d = new Date(isoUrl);
+                        if (isNaN(d.getTime())) return '';
+                        const pad = (n: number) => n.toString().padStart(2, '0');
+                        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                      };
+                      const currentVal = editDates[champSeries.id] !== undefined ? editDates[champSeries.id] : getLocalDt(champSeries.start_time);
+                      return (
+                        <>
+                          <input
+                            type="datetime-local"
+                            className="form-input"
+                            style={{ padding: '4px', fontSize: '0.75rem', flex: 1, maxWidth: '160px' }}
+                            value={currentVal}
+                            onChange={(e) => setEditDates({ ...editDates, [champSeries.id]: e.target.value })}
+                          />
+                          {editDates[champSeries.id] !== undefined && editDates[champSeries.id] !== getLocalDt(champSeries.start_time) && (
+                            <button
+                              className="btn btn--primary btn--sm"
+                              style={{ padding: '4px 8px', fontSize: '0.7rem' }}
+                              onClick={() => {
+                                const dt = editDates[champSeries.id];
+                                const finalIso = dt ? new Date(dt).toISOString() : '';
+                                changeStartTime(champSeries.id, finalIso);
+                                const newEdits = { ...editDates };
+                                delete newEdits[champSeries.id];
+                                setEditDates(newEdits);
+                              }}
+                            >
+                              Guardar
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label className="label-sm text-muted" style={{ fontSize: '0.65rem' }}>Establecer Campeón</label>
+                <select
+                  className="form-input"
+                  style={{ width: '120px', padding: '4px', fontSize: '0.8rem' }}
+                  value={champSeries.actual_winner || ''}
+                  onChange={async (e) => {
+                    const winner = e.target.value;
+                    if (!winner) return;
+                    if (confirm(`¿Confirmar que ${winner} es el campeón NBA?`)) {
+                      const { error } = await supabase
+                        .from('series')
+                        .update({ actual_winner: winner, actual_games: null, status: 'finished' })
+                        .eq('id', champSeries.id);
+                      if (error) setMessage('Error: ' + error.message);
+                      else {
+                        setMessage(`Campeón establecido: ${winner}`);
+                        loadData();
+                      }
+                    }
+                  }}
+                >
+                  <option value="">Elegir...</option>
+                  {champTeamsList.map(abbr => (
+                    <option key={abbr} value={abbr}>{abbr}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="section">
         <h2 className="section-title">
           <span className="section-title__icon">⚙️</span>
           Series Manuales
         </h2>
 
-        {series.map(s => (
+        {series.filter(s => s.round !== 'champion').map(s => (
           <div key={s.id} className="admin-grid" style={{ marginBottom: '12px' }}>
             <div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontFamily: "'Space Grotesk', sans-serif" }}>

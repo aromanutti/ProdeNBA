@@ -23,6 +23,7 @@ export interface UserScore {
   correct_winners: number;
   exact_games: number;
   total_predictions: number;
+  champion_correct: boolean;
 }
 
 /**
@@ -45,13 +46,26 @@ const normalizeTeam = (abbr: string | null) => {
 };
 
 export function calculatePoints(prediction: Prediction, series: Series): number {
-  if (series.status !== 'finished' || !series.actual_winner || !series.actual_games) {
+  if (series.status !== 'finished' || !series.actual_winner) {
     return 0;
   }
 
   let points = 0;
   const predWinner = normalizeTeam(prediction.predicted_winner);
   const actWinner = normalizeTeam(series.actual_winner);
+
+  // Champion prediction: 5 points
+  if (series.round === 'champion') {
+    if (predWinner === actWinner) {
+      points += 5;
+    }
+    return points;
+  }
+
+  // Normal series: require actual_games
+  if (!series.actual_games) {
+    return 0;
+  }
 
   // 1 point for correct winner
   if (predWinner === actWinner) {
@@ -83,6 +97,7 @@ export function calculateLeaderboard(
       correct_winners: 0,
       exact_games: 0,
       total_predictions: 0,
+      champion_correct: false,
     });
   }
 
@@ -101,9 +116,13 @@ export function calculateLeaderboard(
       score.total_points += points;
 
       if (normalizeTeam(pred.predicted_winner) === normalizeTeam(s.actual_winner)) {
-        score.correct_winners++;
-        if (pred.predicted_games === s.actual_games) {
-          score.exact_games++;
+        if (s.round === 'champion') {
+          score.champion_correct = true;
+        } else {
+          score.correct_winners++;
+          if (pred.predicted_games === s.actual_games) {
+            score.exact_games++;
+          }
         }
       }
     }

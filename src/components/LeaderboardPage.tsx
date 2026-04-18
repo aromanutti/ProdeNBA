@@ -54,7 +54,7 @@ export default function LeaderboardPage() {
 
       <div className="card mt-lg" style={{ textAlign: 'center' }}>
         <p className="body-md text-muted">
-          📊 <strong>Sistema de puntaje:</strong> 1 punto por acertar el ganador • +2 puntos extra por acertar la cantidad exacta de juegos
+          📊 <strong>Sistema de puntaje:</strong> 1 punto por acertar el ganador • +2 puntos extra por acertar la cantidad exacta de juegos • 🏆 5 puntos por acertar el Campeón Anticipado
         </p>
       </div>
     </>

@@ -4,7 +4,7 @@ interface Prediction {
   predicted_games: number;
   profiles: {
     display_name: string;
-  };
+  } | null;
 }
 
 interface GroupPredictionsProps {
@@ -45,13 +45,14 @@ export default function GroupPredictions({ predictions, actualWinner, actualGame
           }
         }
 
+        const displayName = pred.profiles?.display_name ?? 'Usuario';
         return (
           <div key={pred.user_id} className="group-pred">
             <div className="group-pred__avatar">
-              {pred.profiles.display_name[0]?.toUpperCase() || '?'}
+              {displayName[0]?.toUpperCase() || '?'}
             </div>
             <div className="group-pred__info">
-              <div className="group-pred__name">{pred.profiles.display_name}</div>
+              <div className="group-pred__name">{displayName}</div>
               <div className="group-pred__pick">
                 {pred.predicted_winner} en {pred.predicted_games}
               </div>

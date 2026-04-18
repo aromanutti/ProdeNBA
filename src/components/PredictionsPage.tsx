@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import SeriesCard from './SeriesCard';
 import PredictionForm from './PredictionForm';
 import GroupPredictions from './GroupPredictions';
+import ChampionPrediction from './ChampionPrediction';
 
 export default function PredictionsPage() {
   const [user, setUser] = useState<any>(null);
@@ -54,7 +55,11 @@ export default function PredictionsPage() {
 
   if (!user) return null;
 
-  const groupByStatus = (status: string) => series.filter(s => s.status === status);
+  // Separate champion series from normal series
+  const championSeries = series.find(s => s.round === 'champion');
+  const normalSeries = series.filter(s => s.round !== 'champion');
+
+  const groupByStatus = (status: string) => normalSeries.filter(s => s.status === status);
   const myPred = (seriesId: string) => predictions.find(p => p.series_id === seriesId);
   const seriesPreds = (seriesId: string) => allPredictions.filter(p => p.series_id === seriesId);
 
@@ -66,6 +71,20 @@ export default function PredictionsPage() {
           Elegí el ganador y la cantidad de juegos para cada serie
         </p>
       </div>
+
+      {/* Champion Prediction — always at the top */}
+      {championSeries && (
+        <div className="section">
+          <ChampionPrediction
+            championSeries={championSeries}
+            allSeries={normalSeries}
+            existingPrediction={myPred(championSeries.id)}
+            allPredictions={allPredictions}
+            userId={user.id}
+            onSaved={loadData}
+          />
+        </div>
+      )}
 
       {/* Detail modal */}
       {selectedSeries && (

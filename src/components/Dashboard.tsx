@@ -53,7 +53,7 @@ export default function Dashboard() {
   const myPredictions = predictions.filter(p => p.user_id === user?.id);
 
   const playInSeries = series.filter(s => s.round === 'play_in');
-  const playoffSeries = series.filter(s => s.round !== 'play_in');
+  const playoffSeries = series.filter(s => s.round !== 'play_in' && s.round !== 'champion');
 
   const openPlayIns = playInSeries.filter(s => s.status === 'open');
   const pendingPlayIns = playInSeries.filter(s => s.status === 'pending');

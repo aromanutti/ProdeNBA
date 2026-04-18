@@ -1185,3 +1185,201 @@ select.form-input {
   font-weight: bold;
 }
 
+/* ========== CHAMPION PREDICTION CARD ========== */
+.champion-card {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.06), rgba(255, 145, 89, 0.04));
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-normal);
+}
+
+.champion-card:hover {
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.champion-card__header {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 145, 89, 0.06));
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.champion-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.champion-card__trophy {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+  animation: trophy-glow 3s ease-in-out infinite;
+}
+
+@keyframes trophy-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.7)); }
+}
+
+.champion-card__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #ffd700, #ffaa00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.champion-card__subtitle {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  margin-top: 2px;
+}
+
+.champion-card__badge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.champion-card__points-badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.champion-card__body {
+  padding: var(--space-lg);
+}
+
+.champion-card__select-wrapper {
+  position: relative;
+  margin-bottom: var(--space-md);
+}
+
+.champion-card__select {
+  width: 100%;
+  padding: 14px 40px 14px 18px;
+  font-size: 0.95rem;
+  background: var(--surface-container);
+  border: 2px solid rgba(255, 215, 0, 0.15);
+  border-radius: var(--radius-md);
+  color: var(--on-surface);
+  transition: border-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.champion-card__select:focus {
+  border-color: rgba(255, 215, 0, 0.5);
+  outline: none;
+}
+
+.champion-card__selected-team {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--surface-container);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  margin-bottom: var(--space-md);
+}
+
+.champion-card__selected-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.15));
+}
+
+.champion-card__selected-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.champion-card__selected-conf {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.7rem;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.champion-card__my-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 8px 16px;
+  background: rgba(255, 215, 0, 0.08);
+  border-radius: var(--radius-full);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  color: var(--on-surface);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+}
+
+.champion-card__result--correct {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--tertiary);
+}
+
+.champion-card__result--wrong {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--error);
+}
+
+.champion-card__actual-winner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+  background: rgba(148, 254, 182, 0.06);
+  border: 1px solid rgba(148, 254, 182, 0.15);
+  border-radius: var(--radius-md);
+}
+
+/* Pending state for series-card used in champion context */
+.series-card--pending {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .champion-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  .champion-card__title {
+    font-size: 1rem;
+  }
+  .champion-card__selected-logo {
+    width: 36px;
+    height: 36px;
+  }
+}
+

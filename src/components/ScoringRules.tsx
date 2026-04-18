@@ -58,6 +58,12 @@ export default function ScoringRules() {
             <span className="rules-item__label" style={{ fontWeight: 700 }}>Máximo por serie</span>
             <span className="rules-item__points" style={{ fontSize: '1.3rem' }}>3 puntos</span>
           </div>
+          <div className="rules-item" style={{ borderTop: '2px solid rgba(255, 215, 0, 0.3)', paddingTop: '16px', background: 'rgba(255, 215, 0, 0.03)', borderRadius: '8px', marginTop: '8px' }}>
+            <span className="rules-item__label" style={{ fontWeight: 700 }}>
+              🏆 Campeón Anticipado — Acertar el campeón NBA
+            </span>
+            <span className="rules-item__points" style={{ fontSize: '1.3rem', color: 'gold' }}>5 puntos</span>
+          </div>
         </div>
       </div>
 
