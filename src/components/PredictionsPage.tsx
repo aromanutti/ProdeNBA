@@ -59,7 +59,9 @@ export default function PredictionsPage() {
   const championSeries = series.find(s => s.round === 'champion');
   const normalSeries = series.filter(s => s.round !== 'champion');
 
-  const groupByStatus = (status: string) => normalSeries.filter(s => s.status === status);
+  const groupByStatus = (status: string) => normalSeries.filter(s => 
+    s.status === status && s.team_home !== 'TBD' && s.team_away !== 'TBD'
+  );
   const myPred = (seriesId: string) => predictions.find(p => p.series_id === seriesId);
   const seriesPreds = (seriesId: string) => allPredictions.filter(p => p.series_id === seriesId);
 

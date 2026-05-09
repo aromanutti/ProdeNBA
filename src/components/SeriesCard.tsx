@@ -15,11 +15,13 @@ interface Series {
   status: string;
   actual_winner: string | null;
   actual_games: number | null;
+  actual_mvp: string | null;
 }
 
 interface Prediction {
   predicted_winner: string;
   predicted_games: number | null;
+  predicted_mvp?: string | null;
 }
 
 interface SeriesCardProps {
@@ -149,9 +151,38 @@ export default function SeriesCard({ series, prediction, onClick }: SeriesCardPr
       )}
 
       {prediction && !isPending && (
-        <div className="my-prediction-tag" style={{ marginTop: '16px', justifyContent: 'center', width: '100%' }}>
-          Tu predicción: {prediction.predicted_winner}
-          {prediction.predicted_games ? ` en ${prediction.predicted_games}` : ''}
+        <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="my-prediction-tag" style={{ justifyContent: 'center', width: '100%' }}>
+            Tu predicción: {prediction.predicted_winner}
+            {prediction.predicted_games ? ` en ${prediction.predicted_games}` : ''}
+          </div>
+          {prediction.predicted_mvp && (
+            <div style={{ 
+              textAlign: 'center', 
+              fontSize: '0.8rem', 
+              color: 'var(--tertiary)',
+              background: 'rgba(148, 254, 182, 0.05)',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              border: '1px solid rgba(148, 254, 182, 0.1)'
+            }}>
+              ⭐ MVP: {prediction.predicted_mvp}
+            </div>
+          )}
+        </div>
+      )}
+
+      {series.status === 'finished' && series.actual_mvp && (
+        <div style={{ 
+          marginTop: '12px', 
+          textAlign: 'center', 
+          fontSize: '0.85rem', 
+          fontWeight: 700,
+          color: 'gold',
+          borderTop: '1px solid rgba(255, 215, 0, 0.2)',
+          paddingTop: '12px'
+        }}>
+          🏆 MVP Real: {series.actual_mvp}
         </div>
       )}
     </div>

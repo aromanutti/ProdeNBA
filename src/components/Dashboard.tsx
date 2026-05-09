@@ -60,7 +60,7 @@ export default function Dashboard() {
   const activePlayIns = playInSeries.filter(s => s.status === 'active');
   const finishedPlayIns = playInSeries.filter(s => s.status === 'finished');
 
-  const openPlayoffs = playoffSeries.filter(s => s.status === 'open');
+  const openPlayoffs = playoffSeries.filter(s => s.status === 'open' && s.team_home !== 'TBD' && s.team_away !== 'TBD');
   const pendingPlayoffs = playoffSeries.filter(s => s.status === 'pending');
   const activePlayoffs = playoffSeries.filter(s => s.status === 'active');
 

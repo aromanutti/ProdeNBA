@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { NBA_PLAYERS } from '../lib/constants';
 
 interface Series {
   id: string;
@@ -51,7 +52,7 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
       return;
     }
     if (requiresMvp && !mvp) {
-      setError('Ingresá el nombre del MVP esperado');
+      setError('Elegí al MVP de la serie');
       return;
     }
 
@@ -209,18 +210,39 @@ export default function PredictionForm({ series, existingPrediction, userId, onS
 
       {/* MVP selector */}
       {requiresMvp && (
-        <div style={{ marginTop: '16px' }}>
-          <p className="label-md text-muted" style={{ marginBottom: '8px', textAlign: 'center' }}>
-            ¿Quién será el MVP?
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '16px', 
+          background: 'rgba(255, 215, 0, 0.03)', 
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 215, 0, 0.1)'
+        }}>
+          <p className="label-md" style={{ marginBottom: '4px', textAlign: 'center', color: 'gold' }}>
+            🌟 MVP de la Serie
           </p>
-          <input
-            type="text"
+          <p className="label-sm text-muted" style={{ marginBottom: '12px', textAlign: 'center' }}>
+            {series.round === 'finals' ? '¡Suma +3 puntos!' : 'Suma +2 puntos'}
+          </p>
+          <select
             className="form-input"
-            style={{ width: '100%', textAlign: 'center' }}
-            placeholder="Ej. LeBron James"
+            style={{ width: '100%', textAlign: 'center', cursor: 'pointer' }}
             value={mvp}
             onChange={(e) => setMvp(e.target.value)}
-          />
+          >
+            <option value="">-- Elegir Jugador --</option>
+            {/* Home Team Players */}
+            <optgroup label={`${series.team_home} - ${series.team_home_full}`}>
+              {(NBA_PLAYERS[series.team_home] || []).map(p => (
+                <option key={`${series.team_home}-${p}`} value={p}>{p}</option>
+              ))}
+            </optgroup>
+            {/* Away Team Players */}
+            <optgroup label={`${series.team_away} - ${series.team_away_full}`}>
+              {(NBA_PLAYERS[series.team_away] || []).map(p => (
+                <option key={`${series.team_away}-${p}`} value={p}>{p}</option>
+              ))}
+            </optgroup>
+          </select>
         </div>
       )}
 

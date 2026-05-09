@@ -1,0 +1,36 @@
+/**
+ * Lista de jugadores destacados por equipo para la selección de MVP.
+ * Podés agregar o quitar jugadores según sea necesario.
+ */
+export const NBA_PLAYERS: Record<string, string[]> = {
+  'ATL': ['Trae Young', 'Dejounte Murray'],
+  'BOS': ['Jayson Tatum', 'Jaylen Brown', 'Kristaps Porzingis', 'Derrick White', 'Jrue Holiday'],
+  'BKN': ['Mikal Bridges', 'Cam Thomas'],
+  'CHA': ['LaMelo Ball', 'Brandon Miller'],
+  'CHI': ['DeMar DeRozan', 'Zach LaVine', 'Coby White'],
+  'CLE': ['Donovan Mitchell', 'Darius Garland', 'Evan Mobley', 'Jarrett Allen'],
+  'DAL': ['Luka Doncic', 'Kyrie Irving', 'P.J. Washington', 'Daniel Gafford'],
+  'DEN': ['Nikola Jokic', 'Jamal Murray', 'Michael Porter Jr.', 'Aaron Gordon'],
+  'DET': ['Cade Cunningham'],
+  'GSW': ['Stephen Curry', 'Klay Thompson', 'Draymond Green'],
+  'HOU': ['Alperen Sengun', 'Jalen Green'],
+  'IND': ['Tyrese Haliburton', 'Pascal Siakam', 'Myles Turner'],
+  'LAC': ['Kawhi Leonard', 'Paul George', 'James Harden'],
+  'LAL': ['LeBron James', 'Anthony Davis'],
+  'MEM': ['Ja Morant'],
+  'MIA': ['Jimmy Butler', 'Bam Adebayo'],
+  'MIL': ['Giannis Antetokounmpo', 'Damian Lillard', 'Khris Middleton'],
+  'MIN': ['Anthony Edwards', 'Karl-Anthony Towns', 'Rudy Gobert'],
+  'NOP': ['Zion Williamson', 'Brandon Ingram'],
+  'NYK': ['Jalen Brunson', 'Josh Hart', 'Donte DiVincenzo'],
+  'OKC': ['Shai Gilgeous-Alexander', 'Chet Holmgren', 'Jalen Williams'],
+  'ORL': ['Paolo Banchero', 'Franz Wagner'],
+  'PHI': ['Joel Embiid', 'Tyrese Maxey'],
+  'PHX': ['Kevin Durant', 'Devin Booker', 'Bradley Beal'],
+  'POR': ['Anfernee Simons'],
+  'SAC': ['De\'Aaron Fox', 'Domantas Sabonis'],
+  'SAS': ['Victor Wembanyama'],
+  'TOR': ['Scottie Barnes'],
+  'UTA': ['Lauri Markkanen'],
+  'WAS': ['Kyle Kuzma'],
+};

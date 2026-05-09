@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { NBA_PLAYERS } from '../lib/constants';
 
 import Bracket from './Bracket';
 
@@ -137,6 +138,15 @@ export default function AdminPanel() {
     await supabase.from('series').update(update).eq('id', target.id);
   };
 
+  const updateMvp = async (seriesId: string, mvp: string) => {
+    const { error } = await supabase.from('series').update({ actual_mvp: mvp }).eq('id', seriesId);
+    if (error) setMessage('Error al actualizar MVP: ' + error.message);
+    else {
+      setMessage('MVP actualizado exitosamente');
+      loadData();
+    }
+  };
+
   const advanceBracket = async (s: any, winner: string) => {
     if (!s) return;
     const loser = winner === s.team_home ? s.team_away : s.team_home;
@@ -184,7 +194,22 @@ export default function AdminPanel() {
     const currentSeries = series.find(s => s.id === seriesId);
     let finalMvp = null;
     if (currentSeries && (currentSeries.round === 'conf_finals' || currentSeries.round === 'finals')) {
-      finalMvp = prompt(`¿Quién fue el MVP de esta final? (Dejar en blanco si no se conoce)`);
+      const players = [
+        ...(NBA_PLAYERS[currentSeries.team_home] || []),
+        ...(NBA_PLAYERS[currentSeries.team_away] || [])
+      ].sort();
+      
+      const playerList = players.map((p, i) => `${i + 1}. ${p}`).join('\n');
+      const selection = prompt(`Elegí el MVP de la serie:\n${playerList}\n\nIngresá el NÚMERO o el nombre:`);
+      
+      if (selection) {
+        const idx = parseInt(selection) - 1;
+        if (!isNaN(idx) && players[idx]) {
+          finalMvp = players[idx];
+        } else {
+          finalMvp = selection; // Fallback to whatever they typed
+        }
+      }
     }
 
     const payload: any = { actual_winner: winner, actual_games: games, status: 'finished' };
@@ -241,7 +266,7 @@ export default function AdminPanel() {
     );
   }
 
-  const statusOptions = ['open', 'active', 'finished'];
+  const statusOptions = ['pending', 'open', 'active', 'finished'];
 
   return (
     <>
@@ -517,41 +542,66 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '4px' }}>
-              <button
-                className="btn btn--ghost btn--sm"
-                title={`${s.team_home} gana`}
-                onClick={() => {
-                  const isPlayIn = s.round === 'play_in';
-                  if (isPlayIn) {
-                    if (confirm(`¿Confirmar que ${s.team_home} ganó el partido?`)) {
-                      setResult(s.id, s.team_home, 1);
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  className="btn btn--ghost btn--sm"
+                  title={`${s.team_home} gana`}
+                  onClick={() => {
+                    const isPlayIn = s.round === 'play_in';
+                    if (isPlayIn) {
+                      if (confirm(`¿Confirmar que ${s.team_home} ganó el partido?`)) {
+                        setResult(s.id, s.team_home, 1);
+                      }
+                    } else {
+                      const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_home}? (4-7)`);
+                      if (gamesStr) setResult(s.id, s.team_home, parseInt(gamesStr));
                     }
-                  } else {
-                    const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_home}? (4-7)`);
-                    if (gamesStr) setResult(s.id, s.team_home, parseInt(gamesStr));
-                  }
-                }}
-              >
-                🏆 {s.team_home}
-              </button>
-              <button
-                className="btn btn--ghost btn--sm"
-                title={`${s.team_away} gana`}
-                onClick={() => {
-                  const isPlayIn = s.round === 'play_in';
-                  if (isPlayIn) {
-                    if (confirm(`¿Confirmar que ${s.team_away} ganó el partido?`)) {
-                      setResult(s.id, s.team_away, 1);
+                  }}
+                >
+                  🏆 {s.team_home}
+                </button>
+                <button
+                  className="btn btn--ghost btn--sm"
+                  title={`${s.team_away} gana`}
+                  onClick={() => {
+                    const isPlayIn = s.round === 'play_in';
+                    if (isPlayIn) {
+                      if (confirm(`¿Confirmar que ${s.team_away} ganó el partido?`)) {
+                        setResult(s.id, s.team_away, 1);
+                      }
+                    } else {
+                      const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_away}? (4-7)`);
+                      if (gamesStr) setResult(s.id, s.team_away, parseInt(gamesStr));
                     }
-                  } else {
-                    const gamesStr = prompt(`¿En cuántos juegos ganó ${s.team_away}? (4-7)`);
-                    if (gamesStr) setResult(s.id, s.team_away, parseInt(gamesStr));
-                  }
-                }}
-              >
-                🏆 {s.team_away}
-              </button>
+                  }}
+                >
+                  🏆 {s.team_away}
+                </button>
+              </div>
+
+              {/* MVP dropdown for Finals */}
+              {(s.round === 'conf_finals' || s.round === 'finals') && (
+                <div style={{ marginTop: '4px' }}>
+                  <label className="label-sm text-muted" style={{ fontSize: '0.6rem', display: 'block', marginBottom: '2px' }}>
+                    Definir MVP
+                  </label>
+                  <select
+                    className="form-input"
+                    style={{ width: '100%', padding: '4px', fontSize: '0.75rem' }}
+                    value={s.actual_mvp || ''}
+                    onChange={(e) => updateMvp(s.id, e.target.value)}
+                  >
+                    <option value="">-- MVP --</option>
+                    <optgroup label={s.team_home}>
+                      {(NBA_PLAYERS[s.team_home] || []).map(p => <option key={p} value={p}>{p}</option>)}
+                    </optgroup>
+                    <optgroup label={s.team_away}>
+                      {(NBA_PLAYERS[s.team_away] || []).map(p => <option key={p} value={p}>{p}</option>)}
+                    </optgroup>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         ))}

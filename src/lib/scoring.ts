@@ -5,6 +5,7 @@ export interface Series {
   team_away: string;
   actual_winner: string | null;
   actual_games: number | null;
+  actual_mvp: string | null;
   status: string;
 }
 
@@ -14,6 +15,7 @@ export interface Prediction {
   series_id: string;
   predicted_winner: string;
   predicted_games: number;
+  predicted_mvp: string | null;
 }
 
 export interface UserScore {
@@ -30,6 +32,8 @@ export interface UserScore {
  * Scoring system:
  * - 1 point for correct series winner (any round)
  * - +2 extra points for exact number of games
+ * - +2 points for correct Conference Finals MVP
+ * - +3 points for correct NBA Finals MVP
  */
 // Normalize team abbreviations to handle discrepancies (e.g. ESPN 'GS' vs Standard 'GSW')
 const normalizeTeam = (abbr: string | null) => {
@@ -43,6 +47,11 @@ const normalizeTeam = (abbr: string | null) => {
     'PHO': 'PHX'
   };
   return map[abbr.toUpperCase()] || abbr.toUpperCase();
+};
+
+const normalizeName = (name: string | null) => {
+  if (!name) return '';
+  return name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
 export function calculatePoints(prediction: Prediction, series: Series): number {
@@ -62,18 +71,24 @@ export function calculatePoints(prediction: Prediction, series: Series): number 
     return points;
   }
 
-  // Normal series: require actual_games
-  if (!series.actual_games) {
-    return 0;
-  }
-
   // 1 point for correct winner
   if (predWinner === actWinner) {
     points += 1;
 
     // +2 extra for exact games
-    if (prediction.predicted_games === series.actual_games) {
+    if (series.actual_games && prediction.predicted_games === series.actual_games) {
       points += 2;
+    }
+  }
+
+  // MVP scoring
+  if (series.actual_mvp && prediction.predicted_mvp) {
+    if (normalizeName(prediction.predicted_mvp) === normalizeName(series.actual_mvp)) {
+      if (series.round === 'conf_finals') {
+        points += 2;
+      } else if (series.round === 'finals') {
+        points += 3;
+      }
     }
   }
 

@@ -54,6 +54,14 @@ export default function ScoringRules() {
             <span className="rules-item__label">Bonus: Acertar la cantidad exacta de juegos</span>
             <span className="rules-item__points">+2 puntos</span>
           </div>
+          <div className="rules-item" style={{ background: 'rgba(255, 215, 0, 0.05)', padding: '8px', borderRadius: '8px' }}>
+            <span className="rules-item__label">🌟 MVP de Finales de Conferencia</span>
+            <span className="rules-item__points">+2 puntos</span>
+          </div>
+          <div className="rules-item" style={{ background: 'rgba(255, 215, 0, 0.08)', padding: '8px', borderRadius: '8px' }}>
+            <span className="rules-item__label">✨ MVP de Finales NBA</span>
+            <span className="rules-item__points">+3 puntos</span>
+          </div>
           <div className="rules-item" style={{ borderTop: '2px solid var(--primary)', paddingTop: '16px' }}>
             <span className="rules-item__label" style={{ fontWeight: 700 }}>Máximo por serie</span>
             <span className="rules-item__points" style={{ fontSize: '1.3rem' }}>3 puntos</span>
